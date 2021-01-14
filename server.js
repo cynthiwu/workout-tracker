@@ -29,13 +29,6 @@ require("./routes/html-routes")(app);
 require("./routes/api-routes")(app);
 
 
-// app.get("/api/workouts", (req, res) => {
-//     db.Date.find({}).then(dbDate => {
-//         res.json(dbDate);
-//     })
-// })
-
-
 app.listen(PORT, () => {
     console.log(`App running on port ${PORT}!`);
 });
