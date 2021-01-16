@@ -12,7 +12,6 @@ module.exports = (app) => {
                 }
             }
         ])
-        // db.Workout.find({})
         .then(dbWorkout => {
             res.json(dbWorkout);
         }).catch(err => {
@@ -22,15 +21,15 @@ module.exports = (app) => {
 
     app.put("/api/workouts/:id", (req, res) => {
         const id = req.params.id;
-        db.Workout.findOneAndUpdate({_id: id}, {push: {exercises: req.body}}, {new: true}).then(dbWorkout => {
+        db.Workout.updateOne({_id: id}, {$push: {exercises: req.body}}).then(dbWorkout => {
             res.json(dbWorkout);
         }).catch(err => {
             res.status(400).json(err);
         })
     });
 
-    app.post("/api/workouts", (req, res) => {
-        db.Workout.create(req.body).then(dbWorkout => {
+    app.post("/api/workouts", ({ body }, res) => {
+        db.Workout.create(body).then(dbWorkout => {
             res.json(dbWorkout);
         }).catch(err => {
             res.status(400).json(err);
@@ -38,8 +37,19 @@ module.exports = (app) => {
     });
 
     app.get("/api/workouts/range", (req, res) => {
-        db.Workout.find({})
-        .then(dbWorkout => {
+        db.Workout.aggregate([
+            {
+                $addFields: {
+                    totalDuration: {
+                        $sum: ["$exercises.duration"]
+                    }
+                }
+            },
+            {$sort: { day: -1 }},
+            { $limit: 7 },
+            {$sort: { day: 1}}
+        ]).then(dbWorkout => {
+            console.log(dbWorkout)
             res.json(dbWorkout);
         }).catch(err => {
             res.status(400).json(err);
